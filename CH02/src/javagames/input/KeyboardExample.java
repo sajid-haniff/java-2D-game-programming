@@ -1,22 +1,25 @@
-package javagames.render;
+package javagames.input;
 
 import java.awt.event.*;
 import javax.swing.*;
+import javagames.util.*;
 
 
-public class RenderThreadExample extends JFrame implements Runnable {
+public class KeyboardExample extends JFrame implements Runnable {
    
    private volatile boolean running;
    private Thread gameThread;
+   private KeyboardInput keys;
    
-   public RenderThreadExample() {
-
+   public KeyboardExample() {
+      keys = new KeyboardInput();
    }
    
    protected void createAndShowGUI() {
       
+      setTitle( "Keyboard Input" );
       setSize( 320, 240 );
-      setTitle( "Render Thread" );
+      addKeyListener( keys );
       setVisible( true );
       
       gameThread = new Thread( this );
@@ -26,23 +29,36 @@ public class RenderThreadExample extends JFrame implements Runnable {
    public void run() {
       running = true;
       while( running ) {
-         System.out.println( "Game Loop" );
-         sleep( 10 );
+         gameLoop();
       }
    }
    
-   private void sleep( long sleep ) {
+   public void gameLoop() {
+      keys.poll();
+      if( keys.keyDownOnce( KeyEvent.VK_SPACE ) ) {
+         System.out.println( "VK_SPACE" );
+      }
+      if( keys.keyDown( KeyEvent.VK_UP ) ) {
+         System.out.println( "VK_UP" );
+      }
+      if( keys.keyDown( KeyEvent.VK_DOWN ) ) {
+         System.out.println( "VK_DOWN" );
+      }
+      if( keys.keyDown( KeyEvent.VK_LEFT ) ) {
+         System.out.println( "VK_LEFT" );
+      }
+      if( keys.keyDown( KeyEvent.VK_RIGHT ) ) {
+         System.out.println( "VK_RIGHT" );
+      }
       try {
-         Thread.sleep( sleep );
+         Thread.sleep( 10 );
       } catch( InterruptedException ex ) { }
    }
    
    protected void onWindowClosing() {
       try {
-         System.out.println( "Stopping Thread..." );
          running = false;
          gameThread.join();
-         System.out.println( "Stopped!!!" );
       } catch( InterruptedException e ) {
          e.printStackTrace();
       }
@@ -50,7 +66,7 @@ public class RenderThreadExample extends JFrame implements Runnable {
    }
    
    public static void main( String[] args ) {
-      final RenderThreadExample app = new RenderThreadExample();
+      final KeyboardExample app = new KeyboardExample();
       app.addWindowListener( new WindowAdapter() {
          public void windowClosing( WindowEvent e ) {
             app.onWindowClosing();
